@@ -37,6 +37,7 @@ module TokenType
   FOR = 'FOR'
   AND = 'AND'
   LUA_OR = 'OR'
+  NOT = 'NOT'
   LUA_DO = 'DO'
   LUA_END = 'END'
   LUA_IF = 'IF'
@@ -61,6 +62,6 @@ class Token
   attr_reader :token_type, :line, :col, :lexeme, :literal
 
   def to_s
-    "Token(#{@token_type}, (#{@line}, #{@col}), #{@lexeme})"
+    "Token(type: #{@token_type}, line: #{@line}, col: #{@col}, lexeme: #{@lexeme})"
   end
 end

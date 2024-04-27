@@ -27,6 +27,7 @@ class Lexer
       'false' => TokenType::FALSE,
       'and' => TokenType::AND,
       'or' => TokenType::LUA_OR,
+      'not' => TokenType::NOT,
       'while' => TokenType::WHILE,
       'then' => TokenType::THEN,
       'else' => TokenType::ELSE,
@@ -36,12 +37,14 @@ class Lexer
     }
   end
 
+  attr_reader :source, :line, :col, :pos, :keywords, :tokens
+
   def advance
     @pos += 1
     '\0' if @pos >= @source.length
 
     if peek == "\n"
-      @col = 1
+      @col = 0
       @line += 1
     else
       @col += 1
@@ -65,10 +68,10 @@ class Lexer
     start_line = @line
     advance
     while peek != '"'
-      if peek == "\n"
-        @line += 1
-        @col = 1
-      end
+      # if peek == "\n"
+      #   @line += 1
+      #   @col = 1
+      # end
       lexeme += peek
       advance
     end
@@ -83,7 +86,6 @@ class Lexer
     start_line = @line
 
     while letter?(peek) || peek == '_' || peek == '-'
-      puts("letter in loop #{peek}")
       lexeme += peek
       advance
     end
@@ -98,20 +100,17 @@ class Lexer
     start_line = @line
     is_float = false
 
-    puts("char in lex_number: #{peek}")
     while digit?(peek) || peek == '.'
-      puts("char in lex_number while loop: #{peek}")
       is_float = true if peek == '.'
       lexeme += peek
       advance
     end
-    puts("char in lex_number after while loop: #{peek}")
+
     literal = (is_float ? Float(lexeme) : Integer(lexeme))
     Token.new(TokenType::NUMBER, start_line, start_col, lexeme, literal)
   end
 
   def match
-    puts("char: #{peek} is nil? #{peek.nil?}")
     return lex_number if digit?(peek)
     return lex_string if peek == '"'
     return lex_keyword_or_ident if letter?(peek)
@@ -119,9 +118,7 @@ class Lexer
     case c = peek
     when "\n", "\r"
       while peek == "\n" || peek == "\r"
-        # @line += 1
         advance
-        # @col = 1
       end
       return eof? ? Token.new(TokenType::EOF, @line, @col, '', '') : match
     when ' '

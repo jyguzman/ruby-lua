@@ -1,0 +1,7 @@
+function sum(n) do
+    val n = 0;
+    while n <= 10 do
+      n = n + 1;
+    end
+    return n;
+end
