@@ -7,9 +7,10 @@ def load_source_file(path = 'test.rua')
 end
 
 def repl
-  puts('Welcome to Rua! Start typing stuff, I guess.')
-  until (input = gets).chomp.eql? 'exit'
-    puts("You said #{input}")
+  lexer = Lexer.new
+  puts('Welcome to Rua! This just tokenizes each string.')
+  until (input = gets.chomp).eql? 'exit'
+    puts(lexer.lex(input))
   end
 end
 

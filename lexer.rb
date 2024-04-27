@@ -181,7 +181,6 @@ class Lexer
       token = Token.new(TokenType::RBRACE, @line, @col, c, c)
       advance
     else
-      # token = Token.new(TokenType::EOF, @line, @col, '', '')
       puts("Unrecognized token #{c}.")
       exit 1
     end
@@ -189,13 +188,13 @@ class Lexer
   end
 
   def lex(source = '')
-    # unless source.empty?
-    #   @source = source
-    #   @line = 0
-    #   @col = 0
-    #   @pos = 0
-    #   @tokens.clear
-    # end
+    unless source.empty?
+      @source = source
+      @line = 1
+      @col = 1
+      @pos = 0
+      @tokens.clear
+    end
 
     @tokens.push match until eof?
     @tokens.push Token.new(TokenType::EOF, @line, @col, '', '') if @tokens[-1].token_type != TokenType::EOF
