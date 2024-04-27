@@ -35,12 +35,16 @@ module TokenType
   RETURN = 'RETURN'
   VAL = 'VAL'
   FOR = 'FOR'
+  AND = 'AND'
+  LUA_OR = 'OR'
   LUA_DO = 'DO'
   LUA_END = 'END'
   LUA_IF = 'IF'
   WHILE = 'WHILE'
   THEN = 'THEN'
   ELSE = 'ELSE'
+
+  IDENT = 'IDENT'
 
   EOF = 'EOF'
 end
@@ -52,6 +56,10 @@ class Token
     @col = col
     @lexeme = lexeme
     @literal = literal
+  end
+
+  def get_type
+    @token_type
   end
 
   def to_s

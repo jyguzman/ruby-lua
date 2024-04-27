@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 require_relative 'token'
 
-def digit?(c)
-  c.match?(/[[:digit:]]/)
+def digit?(char)
+  !char.nil? and char.match?(/[[:digit:]]/)
 end
 
-def letter?(c)
-  c.match?(/[[:alpha:]]/)
+def letter?(char)
+  !char.nil? and char.match?(/[[:alpha:]]/)
 end
 
 ##
@@ -19,7 +19,20 @@ class Lexer
     @pos = 0
     @tokens = []
     @keywords = {
-
+      'function' => TokenType::FUNCTION,
+      'return' => TokenType::RETURN,
+      'val' => TokenType::VAL,
+      'for' => TokenType::FOR,
+      'true' => TokenType::TRUE,
+      'false' => TokenType::FALSE,
+      'and' => TokenType::AND,
+      'or' => TokenType::LUA_OR,
+      'while' => TokenType::WHILE,
+      'then' => TokenType::THEN,
+      'else' => TokenType::ELSE,
+      'end' => TokenType::LUA_END,
+      'if' => TokenType::LUA_IF,
+      'do' => TokenType::LUA_DO
     }
   end
 
@@ -29,6 +42,7 @@ class Lexer
 
     if peek == "\n"
       @col = 1
+      @line += 1
     else
       @col += 1
     end
@@ -41,7 +55,7 @@ class Lexer
   end
 
   def peek(n = 0)
-    '\0' if @pos + n >= @source.length
+    "\0" if @pos + n >= @source.length
     @source[@pos + n]
   end
 
@@ -63,14 +77,19 @@ class Lexer
     Token.new(TokenType::STRING, start_line, start_col, lexeme, lexeme)
   end
 
-  def lex_keyword
+  def lex_keyword_or_ident
     lexeme = ''
     start_col = @col
     start_line = @line
 
-    while letter? peek
+    while letter?(peek) || peek == '_' || peek == '-'
+      puts("letter in loop #{peek}")
       lexeme += peek
+      advance
     end
+
+    type = (@keywords.key?(lexeme) ? @keywords[lexeme] : TokenType::IDENT)
+    Token.new(type, start_line, start_col, lexeme, lexeme)
   end
 
   def lex_number
@@ -79,29 +98,62 @@ class Lexer
     start_line = @line
     is_float = false
 
+    puts("char in lex_number: #{peek}")
     while digit?(peek) || peek == '.'
+      puts("char in lex_number while loop: #{peek}")
       is_float = true if peek == '.'
       lexeme += peek
       advance
     end
-
+    puts("char in lex_number after while loop: #{peek}")
     literal = (is_float ? Float(lexeme) : Integer(lexeme))
     Token.new(TokenType::NUMBER, start_line, start_col, lexeme, literal)
   end
 
   def match
+    puts("char: #{peek} is nil? #{peek.nil?}")
     return lex_number if digit?(peek)
     return lex_string if peek == '"'
+    return lex_keyword_or_ident if letter?(peek)
 
     case c = peek
     when "\n", "\r"
-      @line += 1
-      advance
-      @col = 1
-      return match
+      while peek == "\n" || peek == "\r"
+        # @line += 1
+        advance
+        # @col = 1
+      end
+      return eof? ? Token.new(TokenType::EOF, @line, @col, '', '') : match
     when ' '
       advance
       return match
+    when ';'
+      token = Token.new(TokenType::SEMI, @line, @col, c, c)
+      advance
+    when '='
+      if peek(1) == '='
+        token = Token.new(TokenType::EQUALS, @line, @col, '==', '==')
+        advance
+      else
+        token = Token.new(TokenType::ASSIGN, @line, @col, c, c)
+      end
+      advance
+    when '<'
+      if peek(1) == '='
+        token = Token.new(TokenType::LEQ, @line, @col, '<=', '<=')
+        advance
+      else
+        token = Token.new(TokenType::LESS, @line, @col, c, c)
+      end
+      advance
+    when '>'
+      if peek(1) == '='
+        token = Token.new(TokenType::GEQ, @line, @col, '>=', '>=')
+        advance
+      else
+        token = Token.new(TokenType::GREATER, @line, @col, c, c)
+      end
+      advance
     when '+'
       token = Token.new(TokenType::PLUS, @line, @col, c, c)
       advance
@@ -119,23 +171,37 @@ class Lexer
     when '/'
       token = Token.new(TokenType::DIVIDE, @line, @col, c, c)
       advance
+    when '('
+      token = Token.new(TokenType::LPAREN, @line, @col, c, c)
+      advance
+    when ')'
+      token = Token.new(TokenType::RPAREN, @line, @col, c, c)
+      advance
+    when '{'
+      token = Token.new(TokenType::LBRACE, @line, @col, c, c)
+      advance
+    when '}'
+      token = Token.new(TokenType::RBRACE, @line, @col, c, c)
+      advance
     else
-      return Token.new(TokenType::EOF, @line, @col, c, c)
+      # token = Token.new(TokenType::EOF, @line, @col, '', '')
+      puts("Unrecognized token #{c}.")
+      exit 1
     end
     token
   end
 
   def lex(source = '')
-    unless source.empty?
-      @source = source
-      @line = 0
-      @col = 0
-      @pos = 0
-      @tokens.clear
-    end
+    # unless source.empty?
+    #   @source = source
+    #   @line = 0
+    #   @col = 0
+    #   @pos = 0
+    #   @tokens.clear
+    # end
 
     @tokens.push match until eof?
-
+    @tokens.push Token.new(TokenType::EOF, @line, @col, '', '') if @tokens[-1].get_type != TokenType::EOF
     @tokens
   end
 end
