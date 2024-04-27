@@ -58,9 +58,7 @@ class Token
     @literal = literal
   end
 
-  def get_type
-    @token_type
-  end
+  attr_reader :token_type, :line, :col, :lexeme, :literal
 
   def to_s
     "Token(#{@token_type}, (#{@line}, #{@col}), #{@lexeme})"

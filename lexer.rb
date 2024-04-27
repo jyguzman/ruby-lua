@@ -201,7 +201,7 @@ class Lexer
     # end
 
     @tokens.push match until eof?
-    @tokens.push Token.new(TokenType::EOF, @line, @col, '', '') if @tokens[-1].get_type != TokenType::EOF
+    @tokens.push Token.new(TokenType::EOF, @line, @col, '', '') if @tokens[-1].token_type != TokenType::EOF
     @tokens
   end
 end
