@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_relative 'token'
+
 class Parser
   def initialize(tokens)
     @tokens = tokens
@@ -15,6 +16,10 @@ class Parser
   end
 
   def parse
+    nil
+  end
+
+  def primary
     nil
   end
 end

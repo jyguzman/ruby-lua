@@ -68,10 +68,6 @@ class Lexer
     start_line = @line
     advance
     while peek != '"'
-      # if peek == "\n"
-      #   @line += 1
-      #   @col = 1
-      # end
       lexeme += peek
       advance
     end
@@ -117,13 +113,14 @@ class Lexer
 
     case c = peek
     when "\n", "\r"
-      while peek == "\n" || peek == "\r"
-        advance
-      end
+      advance while peek == "\n" || peek == "\r"
       return eof? ? Token.new(TokenType::EOF, @line, @col, '', '') : match
     when ' '
       advance
       return match
+    when ','
+      token = Token.new(TokenType::COMMA, @line, @col, c, c)
+      advance
     when ';'
       token = Token.new(TokenType::SEMI, @line, @col, c, c)
       advance
@@ -179,6 +176,12 @@ class Lexer
       advance
     when '}'
       token = Token.new(TokenType::RBRACE, @line, @col, c, c)
+      advance
+    when '['
+      token = Token.new(TokenType::LBRACKET, @line, @col, c, c)
+      advance
+    when ']'
+      token = Token.new(TokenType::RBRACKET, @line, @col, c, c)
       advance
     else
       puts("Unrecognized token #{c}.")

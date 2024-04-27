@@ -1,7 +1,18 @@
-function sum(n) do
-    val n = 0;
-    while n <= 10 do
-      n = n + 1;
-    end
-    return n;
+function calculate(x, y)
+  val sum = x + y;
+  val product = x * y;
+  if x > y then
+    return sum;
+  else
+    return product;
+  end
 end
+
+for i = 1, 10 do
+  val result = calculate(i, 2);
+  print("Result:", result);
+end
+
+val status = true and false or not false;
+val data = [1, 2, 3, 4];
+val info = {name = "Lua", type = "Language"};
