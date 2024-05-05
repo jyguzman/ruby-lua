@@ -17,6 +17,7 @@ module TokenType
   MULTIPLY = 'MULTIPLY'
   DIVIDE = 'DIVIDE'
   EQUALS = 'EQUALS'
+  NEQ = 'NEQ'
   GREATER = 'GREATER'
   GEQ = 'GEQ'
   LESS = 'LESS'

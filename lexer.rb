@@ -132,6 +132,15 @@ class Lexer
         token = Token.new(TokenType::ASSIGN, @line, @col, c, c)
       end
       advance
+    when '~'
+      if peek(1) == '='
+        token = Token.new(TokenType::NEQ, @line, @col, '~=', '~=')
+        advance
+      else
+        puts('Invalid token ~')
+        exit 1
+      end
+      advance
     when '<'
       if peek(1) == '='
         token = Token.new(TokenType::LEQ, @line, @col, '<=', '<=')

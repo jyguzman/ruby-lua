@@ -2,6 +2,7 @@
 # frozen_string_literal: true
 
 require_relative 'lexer'
+
 def load_source_file(path = 'test.rua')
   File.open(path).read
 end
