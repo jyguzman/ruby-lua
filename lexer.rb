@@ -22,6 +22,7 @@ class Lexer
       'function' => TokenType::FUNCTION,
       'return' => TokenType::RETURN,
       'val' => TokenType::VAL,
+      'local' => TokenType::LOCAL,
       'for' => TokenType::FOR,
       'true' => TokenType::TRUE,
       'false' => TokenType::FALSE,

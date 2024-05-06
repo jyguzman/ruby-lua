@@ -35,6 +35,7 @@ module TokenType
   FUNCTION = 'FUNCTION'
   RETURN = 'RETURN'
   VAL = 'VAL'
+  LOCAL = 'LOCAL'
   FOR = 'FOR'
   AND = 'AND'
   LUA_OR = 'OR'

@@ -1,5 +1,5 @@
 function calculate(x, y)
-  val sum = x + y;
+  local sum = x + y;
   val product = x * y;
   if x > y then
     return sum;
@@ -9,10 +9,10 @@ function calculate(x, y)
 end
 
 for i = 1, 10 do
-  val result = calculate(i, 2);
+  local result = calculate(i, 2);
   print("Result:", result);
 end
 
-val status = true and false or not false;
-val data = [1, 2, 3, 4];
-val info = {name = "Lua", type = "Language"};
+status = true and false or not false;
+data = [1, 2, 3, 4];
+info = {name = "Lua", type = "Language"};
