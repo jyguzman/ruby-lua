@@ -31,6 +31,10 @@ class Statement
     @node = node
     @statement = statement_node
   end
+
+  def accept(visitor)
+    nil
+  end
 end
 
 class AssignStatement
@@ -55,6 +59,31 @@ class ReturnStatement
   def to_s
     "Return(#{token.lexeme}, #{expr})"
   end
+end
+
+
+class Block
+  def initialize(stmts)
+    @stmts = stmts
+  end
+
+  def to_s
+    "Block(#{@stmts.map(&:to_s).join(', ')})"
+  end
+end
+
+class IfStatement
+  def initialize(condition, then_block, else_block)
+    @condition = condition
+    @then_block = then_block
+    @else_block = else_block
+  end
+  attr_reader :condition, :then_block, :else_block
+
+  def to_s
+    "IfStatement(#{@condition}, #{@then_block}, #{@else_block})"
+  end
+
 end
 
 class WhileLoop

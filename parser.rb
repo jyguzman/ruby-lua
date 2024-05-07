@@ -113,12 +113,11 @@ class Parser
     t = peek
     advance
     if [TokenType::NUMBER, TokenType::STRING,
-        TokenType::FALSE, TokenType::TRUE].include? t.token_type
+        TokenType::FALSE, TokenType::TRUE, TokenType::IDENT].include? t.token_type
       Literal.new(t.literal)
     elsif t.token_type == TokenType::LPAREN
       expr = GroupedExpr.new(parse_expression)
       expect TokenType::RPAREN
-      advance
       expr
     else
       puts("invalid token #{t}")
@@ -137,31 +136,24 @@ class Parser
            else
              parse_expression
            end
-    puts("peeking in parse stmt #{peek}, #{stmt}")
     expect TokenType::SEMI
-    advance
     stmt
   end
 
   def parse_function_def
     expect TokenType::FUNCTION
-    advance
     expect TokenType::IDENT
-    func_ident = advance
+    func_ident = previous
     expect TokenType::LPAREN
     params = []
-    while peek.token_type != TokenType::RPAREN
-      advance
+    until accept TokenType::RPAREN
       expect TokenType::IDENT
-      params.push(advance)
-      expect TokenType::COMMA if peek.token_type != TokenType::RPAREN
+      params.push(previous)
+      expect TokenType::COMMA unless accept(TokenType::RPAREN)
     end
     expect TokenType::RPAREN
-    advance
-    body = []
-    body.push parse_statement while peek.token_type != TokenType::LUA_END
+    body = parse_block
     expect TokenType::LUA_END
-    advance
     FunctionExpr.new(func_ident, params, body)
   end
 
@@ -173,54 +165,52 @@ class Parser
     end
     expect TokenType::IDENT
     ident_node = parse_identifier
-    advance
     expect TokenType::ASSIGN
-    advance
     expr = parse_expression
     AssignStatement.new(is_local, ident_node, expr)
   end
 
   def parse_block
     stmts = []
-    until accept(TokenType::LUA_END)
-      stmt = parse_statement
-      puts("in loop: #{stmt}")
-      stmts.push(stmt)
-      puts("is end? #{peek}")
-    end
-    puts("is end two? #{peek}")
-    expect TokenType::LUA_END
-    advance
+    stmts.push(parse_statement) until accept(TokenType::LUA_END, TokenType::ELSE)
     stmts
   end
 
   def parse_while_loop
     expect TokenType::WHILE
-    advance
     condition = parse_expression
-    puts("condition: #{condition}, current: #{peek}")
     expect TokenType::LUA_DO
-    advance
     block = parse_block
     advance
-    puts("before while loop return #{block}")
     WhileLoop.new(condition, block)
+  end
+
+  def parse_if_statement
+    expect TokenType::LUA_IF
+    condition = parse_expression
+    expect TokenType::THEN
+    then_block = parse_block
+    expect TokenType::ELSE
+    else_block = parse_block
+    expect TokenType::LUA_END
+    IfStatement.new(condition, then_block, else_block)
   end
 
   def parse_return_stmt
     expect TokenType::RETURN
-    return_tok = advance
-    advance
+    return_tok = previous
     expr = parse_expression
     ReturnStatement.new(return_tok, expr)
   end
 
   def expect(token_type)
     t = peek
-    return unless t.token_type != token_type
-
-    puts("Expected token of type #{token_type} at line:column #{t.line}:#{t.col}")
-    exit 1
+    if accept token_type
+      advance
+    else
+      puts("Expected token of type #{token_type} at line:column #{t.line}:#{t.col}")
+      exit 1
+    end
   end
 
   def parse_program
@@ -234,11 +224,17 @@ def test
   expr = '2+6*8'
   stmts = "x = (2 + 6) * 8; local y = true and false or (5 * 8 == 40);"
   loop = 'while 3 <= 5 do z = 2 + 5; w = 5 + 10; end'
-  lexer = Lexer.new(loop)
+  if_stmt = "
+  if x <= 3 then
+    y = 3 + 5;
+  else
+    y = 3 + 6;
+  end"
+  lexer = Lexer.new(if_stmt)
   tokens = lexer.lex
   puts(tokens)
   p = Parser.new(tokens)
-  stmts = p.parse_program
+  stmts = p.parse_if_statement
   puts(stmts)
 end
 

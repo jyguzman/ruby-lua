@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
-class BinaryExpr
+class Visitor
+  def visit_binary_expr(expr)
+    expr
+  end
+end
+
+class Expression
+  def accept(visitor)
+    raise NotImplementedError("Must implement visit()")
+  end
+end
+class BinaryExpr < Expression
   def initialize(left, operator, right)
     @left = left
     @op = operator
@@ -12,10 +23,8 @@ class BinaryExpr
     "Binary(#{@left} #{@op.lexeme} #{@right})"
   end
 
-  def pretty
-    s1 = "      #{@op.lexeme}       \n"
-    s2 = "#{left.pretty}      #{right.pretty}"
-    s1 + s2
+  def visit(visitor)
+    visitor.visit_binary_expr(self)
   end
 end
 
