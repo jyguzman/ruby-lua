@@ -104,8 +104,11 @@ class Parser
   end
 
   def parse_unary
-    return parse_unary if peek.token_type == TokenType::NOT
-
+    if accept(TokenType::NOT, TokenType::HASHTAG, TokenType::MINUS)
+      op = advance
+      expr = parse_unary
+      return UnaryExpr.new(op, expr)
+    end
     parse_primary
   end
 
@@ -142,6 +145,7 @@ class Parser
       stmt = parse_if_statement
     else
       stmt = parse_expression
+      expect TokenType::SEMI
     end
     stmt
   end
@@ -234,13 +238,17 @@ def test
   stmts = "x = (2 + 6) * 8; local y = true and false or (5 * 8 == 40);"
   loop = 'while 3 <= 5 do z = 2 + 5; w = 5 + 10; end'
   if_stmt = "
-  x = (2 + 6) * 8;
-  y = true and false or (5 * 8 == 40);
-  while x <= 100 do
-    x = x + 5;
-    w = 5 + 10;
+  3 - 4;
+  u = -5;
+  x = #\"hello\";
+  y = (2 + 6) * 8;
+  z = true and false or (5 * 8 == 40);
+  w = 0;
+  while y <= 100 do
+    y = y + 5;
+    w = w + 10;
   end
-  if x <= 3 then
+  if x <= 100 then
     y = 3 + 5;
   else
     y = 3 + 6;

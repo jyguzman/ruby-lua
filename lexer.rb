@@ -126,6 +126,9 @@ class Lexer
     when ';'
       token = Token.new(TokenType::SEMI, @line, @col, c, c)
       advance
+    when '#'
+      token = Token.new(TokenType::HASHTAG, @line, @col, c, c)
+      advance
     when '='
       if peek(1) == '='
         token = Token.new(TokenType::EQUALS, @line, @col, '==', '==')

@@ -44,6 +44,10 @@ class UnaryExpr
     @op = op
     @right = right
   end
+
+  def to_s
+    "Unary(#{@op.lexeme}, #{@right})"
+  end
 end
 
 class FunctionExpr

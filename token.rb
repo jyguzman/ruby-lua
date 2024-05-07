@@ -11,9 +11,12 @@ module TokenType
   LBRACKET = 'LBRACKET'
   RBRACKET = 'RBRACKET'
 
+  # unary operators
+  NOT = 'NOT'
+  HASHTAG = 'HASHTAG'
+
   # binary operators
   PLUS = 'PLUS'
-  MINUS = 'MINUS'
   STAR = 'STAR'
   SLASH = 'SLASH'
   EQUALS = 'EQUALS'
@@ -24,6 +27,11 @@ module TokenType
   LEQ = 'LEQ'
   ASSIGN = 'ASSIGNMENT'
   PERCENT = 'PERCENT'
+  AND = 'AND'
+  LUA_OR = 'OR'
+
+  # unary or binary
+  MINUS = 'MINUS'
 
   # types
   TRUE = 'TRUE'
@@ -38,9 +46,6 @@ module TokenType
   VAL = 'VAL'
   LOCAL = 'LOCAL'
   FOR = 'FOR'
-  AND = 'AND'
-  LUA_OR = 'OR'
-  NOT = 'NOT'
   LUA_DO = 'DO'
   LUA_END = 'END'
   LUA_IF = 'IF'
