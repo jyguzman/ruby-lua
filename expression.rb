@@ -62,3 +62,14 @@ class FunctionExpr
     "Func(\"#{@ident}\", #{@params}, #{@body})"
   end
 end
+
+class FunctionCallExpr
+  def initialize(ident, function)
+    @ident = ident
+    @function = function
+  end
+
+  def to_s
+    "FunctionCall(#{@ident}, #{@function})"
+  end
+end

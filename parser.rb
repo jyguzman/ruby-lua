@@ -114,7 +114,11 @@ class Parser
 
   def parse_primary
     if accept(TokenType::NUMBER, TokenType::STRING,
-              TokenType::FALSE, TokenType::TRUE, TokenType::IDENT)
+              TokenType::FALSE, TokenType::TRUE)
+      advance
+      Literal.new(previous.literal)
+    elsif accept TokenType::IDENT
+      return parse_function_call if peek(1).token_type == TokenType::LPAREN
       advance
       Literal.new(previous.literal)
     elsif accept TokenType::LPAREN
@@ -164,6 +168,11 @@ class Parser
     body = parse_block
     expect TokenType::LUA_END
     FunctionExpr.new(func_ident, params, body)
+  end
+
+  def parse_function_call
+    expect TokenType::IDENT
+    ident = previous
   end
 
   def parse_assignment
@@ -234,29 +243,27 @@ class Parser
 end
 
 def test
-  expr = '2+6*8'
-  stmts = "x = (2 + 6) * 8; local y = true and false or (5 * 8 == 40);"
-  loop = 'while 3 <= 5 do z = 2 + 5; w = 5 + 10; end'
-  if_stmt = "
-  3 - 4;
-  u = -5;
-  x = #\"hello\";
-  y = (2 + 6) * 8;
-  z = true and false or (5 * 8 == 40);
-  w = 0;
-  while y <= 100 do
-    y = y + 5;
-    w = w + 10;
-  end
-  if x <= 100 then
-    y = 3 + 5;
-  else
-    y = 3 + 6;
-  end
-  square = function(n)
-    return n * n;
-  end"
-  lexer = Lexer.new(if_stmt)
+  source = "
+    3 - 4;
+    u = -5;
+    x = #\"hello\";
+    y = (2 + 6) * 8;
+    z = true and not false or (5 * 8 == 40);
+    w = 0;
+    while y <= 100 do
+      y = y + 5;
+      w = w + 10;
+    end
+    if x <= 100 then
+      y = 3 + 5;
+    else
+      y = 3 + 6;
+    end
+    square = function(n)
+      return n * n;
+    end
+  "
+  lexer = Lexer.new(source)
   tokens = lexer.lex
   puts(tokens)
   p = Parser.new(tokens)
