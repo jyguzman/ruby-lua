@@ -34,6 +34,7 @@ class Lexer
       'else' => TokenType::ELSE,
       'end' => TokenType::LUA_END,
       'if' => TokenType::LUA_IF,
+      'elseif' => TokenType::ELSEIF,
       'do' => TokenType::LUA_DO
     }
   end
@@ -161,6 +162,9 @@ class Lexer
     when '+'
       token = Token.new(TokenType::PLUS, @line, @col, c, c)
       advance
+    when '%'
+      token = Token.new(TokenType::PERCENT, @line, @col, c, c)
+      advance
     when '-'
       if peek(1) == '-'
         advance until peek == "\n"
@@ -170,10 +174,10 @@ class Lexer
         advance
       end
     when '*'
-      token = Token.new(TokenType::MULTIPLY, @line, @col, c, c)
+      token = Token.new(TokenType::STAR, @line, @col, c, c)
       advance
     when '/'
-      token = Token.new(TokenType::DIVIDE, @line, @col, c, c)
+      token = Token.new(TokenType::SLASH, @line, @col, c, c)
       advance
     when '('
       token = Token.new(TokenType::LPAREN, @line, @col, c, c)

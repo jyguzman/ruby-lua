@@ -14,8 +14,8 @@ module TokenType
   # binary operators
   PLUS = 'PLUS'
   MINUS = 'MINUS'
-  MULTIPLY = 'MULTIPLY'
-  DIVIDE = 'DIVIDE'
+  STAR = 'STAR'
+  SLASH = 'SLASH'
   EQUALS = 'EQUALS'
   NEQ = 'NEQ'
   GREATER = 'GREATER'
@@ -23,6 +23,7 @@ module TokenType
   LESS = 'LESS'
   LEQ = 'LEQ'
   ASSIGN = 'ASSIGNMENT'
+  PERCENT = 'PERCENT'
 
   # types
   TRUE = 'TRUE'
@@ -43,6 +44,7 @@ module TokenType
   LUA_DO = 'DO'
   LUA_END = 'END'
   LUA_IF = 'IF'
+  ELSEIF = 'ELSEIF'
   WHILE = 'WHILE'
   THEN = 'THEN'
   ELSE = 'ELSE'

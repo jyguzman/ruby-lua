@@ -57,7 +57,7 @@ class ReturnStatement
   end
 
   def to_s
-    "Return(#{token.lexeme}, #{expr})"
+    "Return(#{@expr})"
   end
 end
 
@@ -67,8 +67,12 @@ class Block
     @stmts = stmts
   end
 
+  def add(stmt)
+    @stmts.push stmt
+  end
+
   def to_s
-    "Block(#{@stmts.map(&:to_s).join(', ')})"
+    'Block(' + @stmts.join(', ') + ')'
   end
 end
 

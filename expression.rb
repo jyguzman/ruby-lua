@@ -54,6 +54,7 @@ class FunctionExpr
   end
 
   def to_s
-    "Func(\"#{@ident.lexeme}\", #{params}, #{body})"
+    # params = params[0] if params.size == 1
+    "Func(\"#{@ident}\", #{@params}, #{@body})"
   end
 end
