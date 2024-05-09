@@ -87,7 +87,19 @@ class IfStatement
   def to_s
     "IfStatement(#{@condition}, #{@then_block}, #{@else_block})"
   end
+end
 
+class ForLoop
+  def initialize(var_init_assignment, stop, step, body)
+    @var_init_assignment = var_init_assignment
+    @stop = stop
+    @step = step
+    @body = body
+  end
+
+  def to_s
+    "ForLoop(#{@var_init_assignment}, #{@stop}, #{@step}, #{@body})"
+  end
 end
 
 class WhileLoop

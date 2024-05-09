@@ -137,19 +137,19 @@ class Parser
   def parse_statement
     if accept(TokenType::IDENT, TokenType::LOCAL)
       stmt = parse_assignment
-      expect TokenType::SEMI unless accept(TokenType::EOF)
     elsif accept(TokenType::RETURN)
       stmt = parse_return_stmt
-      expect TokenType::SEMI
     elsif accept TokenType::WHILE
       stmt = parse_while_loop
+    elsif accept TokenType::FOR
+      stmt = parse_for_loop
     elsif accept TokenType::FUNCTION
       stmt = parse_function_def
     elsif accept TokenType::LUA_IF
       stmt = parse_if_statement
     else
       stmt = parse_expression
-      expect TokenType::SEMI
+      expect TokenType::SEMI unless accept(TokenType::EOF, TokenType::LUA_END, TokenType::ELSE)
     end
     stmt
   end
@@ -175,8 +175,7 @@ class Parser
     ident = previous
   end
 
-  def parse_assignment
-    is_local = false
+  def parse_assignment(is_local = false)
     if accept TokenType::LOCAL
       is_local = true
       advance
@@ -185,6 +184,7 @@ class Parser
     ident_node = IdentNode.new(previous)
     expect TokenType::ASSIGN
     expr = parse_expression
+    expect TokenType::SEMI unless accept(TokenType::EOF, TokenType::LUA_END, TokenType::ELSE, TokenType::COMMA)
     AssignStatement.new(is_local, ident_node, expr)
   end
 
@@ -205,6 +205,19 @@ class Parser
 
   def parse_for_loop
     expect TokenType::FOR
+    assignment = parse_assignment true
+    expect TokenType::COMMA
+    stop = parse_expression
+    step = 1
+    if accept TokenType::COMMA
+      advance
+      step = parse_expression
+    end
+    expect TokenType::LUA_DO
+    body = parse_block
+    expect TokenType::LUA_END
+    advance
+    ForLoop.new(assignment, stop, step, body)
   end
 
   def parse_if_statement
@@ -222,6 +235,7 @@ class Parser
     expect TokenType::RETURN
     return_tok = previous
     expr = parse_expression
+    expect TokenType::SEMI unless accept(TokenType::EOF, TokenType::LUA_END, TokenType::ELSE)
     ReturnStatement.new(return_tok, expr)
   end
 
@@ -243,7 +257,10 @@ class Parser
 end
 
 def test
-  source = "
+  source =
+    "for i = 0, 10, 3 do
+      x = y + 3
+    end
     3 - 4;
     u = -5;
     x = #\"hello\";
@@ -252,17 +269,17 @@ def test
     w = 0;
     while y <= 100 do
       y = y + 5;
-      w = w + 10;
+      w = w + 10
     end
     if x <= 100 then
-      y = 3 + 5;
+      y = 3 + 5
     else
-      y = 3 + 6;
+      y = 3 + 6
     end
     square = function(n)
-      return n * n;
-    end
-  "
+      res = n * n;
+      return res
+    end"
   lexer = Lexer.new(source)
   tokens = lexer.lex
   puts(tokens)
