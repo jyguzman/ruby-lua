@@ -136,7 +136,11 @@ class Parser
 
   def parse_statement
     if accept(TokenType::IDENT, TokenType::LOCAL)
-      stmt = parse_assignment
+      stmt = if peek(1).token_type == TokenType::LPAREN
+               parse_function_call
+             else
+               parse_assignment
+             end
     elsif accept(TokenType::RETURN)
       stmt = parse_return_stmt
     elsif accept TokenType::WHILE
@@ -172,7 +176,15 @@ class Parser
 
   def parse_function_call
     expect TokenType::IDENT
-    ident = previous
+    func_ident = previous
+    expect TokenType::LPAREN
+    args = []
+    until accept TokenType::RPAREN
+      args.push(parse_expression)
+      expect TokenType::COMMA unless accept(TokenType::RPAREN)
+    end
+    expect TokenType::RPAREN
+    FunctionCallExpr.new(func_ident, args)
   end
 
   def parse_assignment(is_local = false)
@@ -184,7 +196,8 @@ class Parser
     ident_node = IdentNode.new(previous)
     expect TokenType::ASSIGN
     expr = parse_expression
-    expect TokenType::SEMI unless accept(TokenType::EOF, TokenType::LUA_END, TokenType::ELSE, TokenType::COMMA)
+    expect TokenType::SEMI unless accept(TokenType::EOF, TokenType::LUA_END,
+                                         TokenType::ELSE, TokenType::COMMA)
     AssignStatement.new(is_local, ident_node, expr)
   end
 
@@ -269,17 +282,21 @@ def test
     w = 0;
     while y <= 100 do
       y = y + 5;
-      w = w + 10
+      w = w + 10;
     end
     if x <= 100 then
       y = 3 + 5
     else
       y = 3 + 6
     end
-    square = function(n)
-      res = n * n;
+    add = function(m, n)
+      res = m + n;
       return res
-    end"
+    end;
+    function square(n) return n * n end
+    q = add(5, 10);
+    z = square(10);
+    square(10)"
   lexer = Lexer.new(source)
   tokens = lexer.lex
   puts(tokens)
