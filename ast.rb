@@ -1,14 +1,6 @@
-class Literal
-  def initialize(literal)
-    @literal = literal
-  end
-
-  def to_s
-    "Literal(#{@literal})"
-  end
-
-  def pretty
-    @literal.to_s
+class Node
+  def accept(visitor)
+    raise NotImplementedError("Must be implemented")
   end
 end
 
@@ -72,7 +64,7 @@ class Block
   end
 
   def to_s
-    'Block(' + @stmts.join(', ') + ')'
+    "Block(#{@stmts.join(', ')})"
   end
 end
 
@@ -113,3 +105,18 @@ class WhileLoop
   end
 end
 
+class Program
+  def initialize(statements)
+    @statements = statements
+  end
+
+  attr_reader :statements
+
+  def add(statement)
+    @statements.push statement
+  end
+
+  def to_s
+    "Program(#{@statements.join(', ')})"
+  end
+end

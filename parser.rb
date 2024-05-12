@@ -302,7 +302,9 @@ def test
   puts(tokens)
   p = Parser.new(tokens)
   stmts = p.parse_program
+  program = Program.new stmts
   puts(stmts)
+
 end
 
 test
