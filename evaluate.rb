@@ -6,7 +6,7 @@ require_relative 'lexer'
 require_relative 'parser'
 
 def test
-  source = '2 + 3 * 5 - 10 + #"size"'
+  source = '(2 + 3) * 5 - 10 + #"size";'
   lexer = Lexer.new(source)
   tokens = lexer.lex
   puts(tokens)
@@ -16,7 +16,10 @@ def test
   visitor = Visitor.new
   expr = program.statements[0]
   puts(expr)
-  puts(expr.accept(visitor))
+  puts(expr.accept visitor)
+  program.statements.each { |stmt|
+    puts(stmt.accept(visitor))
+  }
 end
 
 test

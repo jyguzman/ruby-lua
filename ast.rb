@@ -40,6 +40,10 @@ class AssignStatement
   def to_s
     "Assignment(#{@ident} = #{@expr}, local: #{@is_local})"
   end
+
+  def accept(visitor)
+    expr_res = expr.accept(visitor)
+  end
 end
 
 class ReturnStatement
@@ -50,6 +54,10 @@ class ReturnStatement
 
   def to_s
     "Return(#{@expr})"
+  end
+
+  def accept(visitor)
+    expr.accept(visitor)
   end
 end
 
@@ -66,6 +74,12 @@ class Block
   def to_s
     "Block(#{@stmts.join(', ')})"
   end
+
+  def accept(visitor)
+    @stmts.each { |stmt|
+      stmt.accept(visitor)
+    }
+  end
 end
 
 class IfStatement
@@ -78,6 +92,11 @@ class IfStatement
 
   def to_s
     "IfStatement(#{@condition}, #{@then_block}, #{@else_block})"
+  end
+
+  def accept(visitor)
+    condition_res = visitor.visit(@condition)
+
   end
 end
 

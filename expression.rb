@@ -52,16 +52,21 @@ class Visitor
   end
 
   def visit_unary_expr(expr)
-
     op = expr.op.lexeme
+    target = expr.right
     case op
     when '#'
-      string = expr.right.accept self
-      return string.size if string.instance_of? String
+      literal = target.accept self
+      return literal.size if literal.instance_of? String
 
       puts('Operand for "#" must be type String.')
     when 'not'
-      !expr.right
+      literal = target.accept self
+      if literal.nil? || literal == false
+        true
+      else
+        false
+      end
     when '-'
       return -expr.right if expr.right.instance_of?(Integer) || expr.right.instance_of?(Float)
 
@@ -71,8 +76,8 @@ class Visitor
     end
   end
 
-  def visit_grouped_expr(expr)
-    expr
+  def visit_grouped_expr(grouping)
+    grouping.expr.accept self
   end
 
   def visit_literal(expr)
@@ -80,13 +85,14 @@ class Visitor
   end
 end
 
-class Expression
+module Expression
   def accept(visitor)
     raise NotImplementedError("Must implement accept()")
   end
 end
 
-class Literal < Expression
+class Literal
+  include Expression
   def initialize(literal)
     @literal = literal
   end
@@ -102,7 +108,8 @@ class Literal < Expression
   end
 end
 
-class BinaryExpr < Expression
+class BinaryExpr
+  include Expression
   def initialize(left, operator, right)
     @left = left
     @op = operator
@@ -120,7 +127,8 @@ class BinaryExpr < Expression
 
 end
 
-class GroupedExpr < Expression
+class GroupedExpr
+  include Expression
   def initialize(expr)
     @expr = expr
   end
@@ -130,12 +138,13 @@ class GroupedExpr < Expression
     "Grouping(#{@expr})"
   end
 
-  def accept(visitor: Visitor)
-    visitor.visit_grouped_expr(self)
+  def accept(visitor)
+    visitor.visit_grouped_expr self
   end
 end
 
-class UnaryExpr < Expression
+class UnaryExpr
+  include Expression
   def initialize(op, right)
     @op = op
     @right = right
@@ -153,6 +162,7 @@ class UnaryExpr < Expression
 end
 
 class FunctionExpr
+  include Expression
   def initialize(ident, params, body)
     @ident = ident
     @params = params
@@ -162,18 +172,18 @@ class FunctionExpr
   attr_reader :ident, :params, :body
 
   def to_s
-    # params = params[0] if params.size == 1
     "Func(\"#{@ident}\", #{@params}, #{@body})"
   end
 end
 
 class FunctionCallExpr
-  def initialize(ident, function)
+  include Expression
+  def initialize(ident, args)
     @ident = ident
-    @function = function
+    @args = args
   end
 
   def to_s
-    "FunctionCall(#{@ident}, #{@function})"
+    "FunctionCall(#{@ident}, #{@args})"
   end
 end
