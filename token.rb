@@ -18,6 +18,7 @@ module TokenType
   # binary operators
   PLUS = 'PLUS'
   STAR = 'STAR'
+  DOTDOT = 'DOTDOT'
   SLASH = 'SLASH'
   EQUALS = 'EQUALS'
   NEQ = 'NEQ'

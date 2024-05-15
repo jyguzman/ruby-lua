@@ -176,6 +176,15 @@ class Lexer
         token = Token.new(TokenType::MINUS, @line, @col, c, c)
         advance
       end
+    when '.'
+      if peek(1) == '.'
+        token = Token.new(TokenType::DOTDOT, @line, @col, '..', '..')
+        advance
+      else
+        puts('Invalid token .')
+        exit 1
+      end
+      advance
     when '*'
       token = Token.new(TokenType::STAR, @line, @col, c, c)
       advance

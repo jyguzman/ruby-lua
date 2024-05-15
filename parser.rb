@@ -85,7 +85,7 @@ class Parser
 
   def parse_term
     expr = parse_factor
-    while [TokenType::PLUS, TokenType::MINUS].include? peek.token_type
+    while [TokenType::PLUS, TokenType::MINUS, TokenType::DOTDOT].include? peek.token_type
       op = advance
       right = parse_factor
       expr = BinaryExpr.new(expr, op, right)
@@ -120,7 +120,7 @@ class Parser
     elsif accept TokenType::IDENT
       return parse_function_call if peek(1).token_type == TokenType::LPAREN
       advance
-      Literal.new(previous.literal)
+      IdentNode.new(previous)
     elsif accept TokenType::LPAREN
       advance
       expr = GroupedExpr.new(parse_expression)
@@ -238,8 +238,10 @@ class Parser
     condition = parse_expression
     expect TokenType::THEN
     then_block = parse_block
-    expect TokenType::ELSE
-    else_block = parse_block
+    if accept TokenType::ELSE
+      advance
+      else_block = parse_block
+    end
     expect TokenType::LUA_END
     IfStatement.new(condition, then_block, else_block)
   end
@@ -265,11 +267,16 @@ class Parser
   def parse_program
     blocks = []
     blocks.push parse_statement until eof?
+    puts(blocks)
     blocks
+  end
+
+  def parse_exp(precedence)
+    nil
   end
 end
 
-def test
+def parse_test
   source =
     "for i = 0, 10, 3 do
       x = y + 3
@@ -307,5 +314,5 @@ def test
 
 end
 
-test
+# parse_test
 

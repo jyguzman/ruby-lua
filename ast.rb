@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+require_relative 'visitor'
 class Node
   def accept(visitor)
     raise NotImplementedError("Must be implemented")
@@ -16,6 +18,18 @@ class IdentNode
   def to_s
     "Ident(\"#{@token.lexeme}\")"
   end
+
+  def name
+    @token.lexeme
+  end
+
+  def accept(visitor)
+    unless visitor.env.has?(name)
+      puts("Identifier \"#{name}\" not previously declared")
+      exit 1
+    end
+    visitor.env.get(name)
+  end
 end
 
 class Statement
@@ -32,17 +46,17 @@ end
 class AssignStatement
   def initialize(is_local, ident_node, expr_node)
     @is_local = is_local
-    @ident = ident_node
-    @expr = expr_node
+    @ident_node = ident_node
+    @expr_node = expr_node
   end
-  attr_reader :ident, :expr
+  attr_reader :is_local, :ident_node, :expr_node
 
   def to_s
-    "Assignment(#{@ident} = #{@expr}, local: #{@is_local})"
+    "Assignment(#{@ident_node} = #{@expr_node}, local: #{@is_local})"
   end
 
   def accept(visitor)
-    expr_res = expr.accept(visitor)
+    visitor.visit_assign_stmt self
   end
 end
 
@@ -71,19 +85,21 @@ class Block
     @stmts.push stmt
   end
 
+  attr_reader :stmts
+
   def to_s
     "Block(#{@stmts.join(', ')})"
   end
 
   def accept(visitor)
-    @stmts.each { |stmt|
+    @stmts.each do |stmt|
       stmt.accept(visitor)
-    }
+    end
   end
 end
 
 class IfStatement
-  def initialize(condition, then_block, else_block)
+  def initialize(condition, then_block, else_block = nil)
     @condition = condition
     @then_block = then_block
     @else_block = else_block
@@ -95,8 +111,7 @@ class IfStatement
   end
 
   def accept(visitor)
-    condition_res = visitor.visit(@condition)
-
+    visitor.visit_if_stmt self
   end
 end
 
@@ -114,13 +129,30 @@ class ForLoop
 end
 
 class WhileLoop
-  def initialize(condition, body)
+  def initialize(condition, while_block)
     @condition = condition
-    @body = body
+    @while_block = while_block
   end
 
+  attr_reader :condition, :while_block
+
   def to_s
-    "WhileLoop(#{@condition}, #{@body})"
+    "WhileLoop(#{@condition}, #{@while_block})"
+  end
+
+  def accept(visitor)
+    visitor.visit_while_loop self
+  end
+end
+
+class PrintStatement
+  def initialize(expr)
+    @expr = expr
+  end
+
+  def accept(visitor)
+    expr_res = @expr.accept(visitor)
+    puts(expr_res)
   end
 end
 
@@ -133,6 +165,10 @@ class Program
 
   def add(statement)
     @statements.push statement
+  end
+
+  def accept(visitor)
+    @statements.each { |stmt| stmt.accept(visitor) }
   end
 
   def to_s
