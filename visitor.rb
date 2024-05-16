@@ -12,7 +12,6 @@ class Visitor
     op = expr.op.lexeme
     l = expr.left
     r = expr.right
-    # puts("includes #{op}: #{%w[< <= > >=].include?(op)}")
     case op
     when '+'
       l = l.accept self
@@ -147,17 +146,18 @@ class Visitor
   end
 
   def visit_block(block)
-    local_env = Env.new @env.symbol_table
+    @env.add_local_table
     block.stmts.each do |stmt|
       stmt.accept self
     end
+    @env.pop_local_table
   end
 
   def visit_assign_stmt(stmt)
     is_local = stmt.is_local
     expr_res = stmt.expr_node.accept self
     ident = stmt.ident_node.name
-    @env.add(ident, expr_res)
+    @env.add(ident, expr_res, is_local)
   end
 
   def visit_while_loop(while_loop)

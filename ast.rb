@@ -24,11 +24,12 @@ class IdentNode
   end
 
   def accept(visitor)
-    unless visitor.env.has?(name)
+    val = visitor.env.get(name)
+    if val.nil?
       puts("Identifier \"#{name}\" not previously declared")
       exit 1
     end
-    visitor.env.get(name)
+    val
   end
 end
 
@@ -92,9 +93,7 @@ class Block
   end
 
   def accept(visitor)
-    @stmts.each do |stmt|
-      stmt.accept(visitor)
-    end
+    visitor.visit_block self
   end
 end
 

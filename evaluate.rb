@@ -8,34 +8,32 @@ require_relative 'parser'
 def do_eval
   source = "
   i = 0;
+  k = 0;
   j = 10;
-  while i < 5 or j > 8 do
-    --local k = 5;
-    i = i + 1;
-    j = j - 1;
+  while i < 5 do
+    local k = 3;
+    i = i + k;
   end
-  if j < 0 then
-    k = 100;
+  if j > 3 then
+    local z = 1000;
+    while z > 500 do
+      local y = 500;
+      z = z - y;
+    end
+    j = j + z;
   else
-    m = 50;
+    local z = 1000;
+    j = j - z;
   end
-  concat_string = \"one_\"..\"two\""
-  lexer = Lexer.new(source)
-  tokens = lexer.lex
-  puts(tokens)
+  local concat_string = \"one_\"..\"two\""
+  tokens = Lexer.new(source).lex
+  # puts(tokens)
   p = Parser.new(tokens)
   program = Program.new p.parse_program
-  puts(program)
+  # puts(program)
   visitor = Visitor.new
   program.accept(visitor)
-  puts(visitor.env)
-  # expr = program.statements[0]
-  # puts(expr)
-  # puts(expr.accept visitor)
-  # puts(visitor.env)
-  # program.statements.each { |stmt|
-  #   puts(stmt.accept(visitor))
-  # }
+  puts("env after program: #{visitor.env}")
 end
 
 do_eval
